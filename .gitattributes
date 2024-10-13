@@ -1,0 +1,8 @@
+# Disable line ending conversion for JSON files
+*.json -text
+
+# Disable line ending conversion for JavaScript files
+*.js -text
+
+# Disable line ending conversion for files in node_modules
+node_modules/** -text
