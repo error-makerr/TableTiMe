@@ -1,26 +1,32 @@
 const express = require('express');
-const morgan = require('morgan');
+const bodyParser = require('body-parser');
 const dotenv = require('dotenv');
 const cors = require('cors');
 const connectDb = require('./config/db');
+const authRoutes = require('./routes/auth');  // Import auth routes
 
 
-dotenv.config()
-
+dotenv.config();
 
 const app = express();
 connectDb();
 
 app.use(express.json());
-app.use(morgan('dev'));
-app.use(cors())
+app.use(bodyParser.json());
+app.use(cors());
 
 app.get('/', (req, res) => {
-  return res.status(200).send('<h1>Welcome to food server<h1>');
+  return res.status(200).send('<h1>Welcome to food server</h1>');
 });
 
-const PORT = process.env.PORT;
+// Use auth routes
+app.use('/api/auth', authRoutes);  // Mount the auth routes at /api/auth
+
+
+const PORT = process.env.PORT || 8080;
 
 app.listen(PORT, () => {
-  console.log(`Server running on ${PORT}`);
+  console.log(`Server running on http://localhost:${PORT}`);
 });
+
+
