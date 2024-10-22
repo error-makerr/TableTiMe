@@ -39,38 +39,50 @@ exports.registerUser = async (req, res) => {
   }
 };
 
+
 // Login logic
 exports.loginUser = async (req, res) => {
   const { email, password } = req.body;
 
+  // Check for empty email or password
   if (!email || !password) {
     return res.status(400).json({ message: 'Please provide both email and password' });
   }
 
   try {
+    // Find the user by email
     const user = await User.findOne({ email });
+
+    // If no user is found
     if (!user) {
-      return res.status(400).json({ message: 'Invalid email or password' });
+      return res.status(401).json({ message: 'Invalid email or password' });
     }
 
+    // Check if the password matches
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res.status(400).json({ message: 'Invalid email or password' });
+      return res.status(401).json({ message: 'Invalid email or password' });
     }
 
     // Generate JWT Token
     const token = jwt.sign(
-      { userId: user._id, email: user.email },
-      process.env.JWT_SECRET,
-      { expiresIn: '1h' }
+      { userId: user._id, email: user.email },  // Payload
+      process.env.JWT_SECRET,  // Secret
+      { expiresIn: '1h' }  // Token expiry
     );
 
+    // Return success with token and user info
     return res.status(200).json({
       message: 'Login successful',
       token,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+      },
     });
   } catch (error) {
-    console.error(error);
-    return res.status(500).json({ message: 'Server error' });
+    console.error('Error during login:', error);
+    return res.status(500).json({ message: 'Server error. Please try again later.' });
   }
 };
